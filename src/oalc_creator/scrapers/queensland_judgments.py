@@ -96,6 +96,11 @@ class QueenslandJudgments(Scraper):
 
     @log
     async def get_index_reqs(self) -> set[Request]:
+        # NOTE The database's robots.txt disallows, for all user agents, both /caselaw/datatable-case-law (the only listing of the collection, used below) and /*pdf (the fallback in `_get_doc`), and the database began refusing this scraper with HTTP 403 on 23 October 2026. The scraper refuses to run unless the Supreme Court Library Queensland grants bulk access.
+        raise PermissionError('queensland_judgments is disabled: robots.txt at queenslandjudgments.com.au disallows '
+                              '/caselaw/datatable-case-law and /*pdf. Obtain bulk access from the Supreme Court Library '
+                              'Queensland before re-enabling.')
+
         # Determine the total number of records in the collection.
         total = (await self._datatable(0))['recordsTotal']
 

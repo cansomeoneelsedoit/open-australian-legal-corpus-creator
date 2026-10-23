@@ -57,6 +57,11 @@ class ActLegislation(Scraper):
 
     @log
     async def get_index_reqs(self) -> set[Request]:
+        # NOTE The register's robots.txt disallows /results (the browse listings used below) for all user agents and sets a crawl delay of 10 seconds, which this scraper's concurrency does not honour. The scraper refuses to run unless the ACT Parliamentary Counsel's Office permits bulk access.
+        raise PermissionError('act_legislation is disabled: robots.txt at legislation.act.gov.au disallows /results '
+                              'and sets Crawl-delay: 10. Obtain bulk access from the ACT Parliamentary Counsel\'s Office '
+                              'before re-enabling.')
+
         return {
             Request(f'{self._base_url}/results?category={category}&status=Current&action=browse')
 

@@ -61,6 +61,11 @@ class VictorianLegislation(Scraper):
 
     @log
     async def get_index_reqs(self) -> set[Request]:
+        # NOTE The documents are served from content.legislation.vic.gov.au, whose robots.txt disallows everything for all user agents (www.legislation.vic.gov.au likewise disallows /sites/default/files/*.doc and *.pdf, and sets Crawl-delay: 2). The legislation's open licence permits reuse but not automated collection, so the scraper refuses to run unless the Office of the Chief Parliamentary Counsel Victoria permits bulk access.
+        raise PermissionError('victorian_legislation is disabled: robots.txt at content.legislation.vic.gov.au disallows / '
+                              'for all user agents. Obtain bulk access from the Office of the Chief Parliamentary Counsel '
+                              'Victoria before re-enabling.')
+
         # Retrieve the sitemap index and generate requests for every page of the sitemap.
         resp = (await self.get(f'{self._base_url}/sitemap.xml')).text
 
