@@ -301,12 +301,23 @@ class Creator:
             # Add missing documents to the Corpus.
             console.print('\nAdding documents to the Corpus.', style='light_cyan1 bold')
             
+            # NOTE A run interrupted mid-write can leave the Corpus without a trailing newline, in which case appending to it would join the first new document onto the last line.
+            missing_newline = False
+
+            with open(self.corpus_path, 'rb') as corpus_file:
+                if corpus_file.seek(0, os.SEEK_END):
+                    corpus_file.seek(-1, os.SEEK_END)
+                    missing_newline = corpus_file.read(1) != b'\n'
+
             with open(self.corpus_path, 'ab') as f:
+                if missing_newline:
+                    f.write(b'\n')
+
                 for doc in tqdm_asyncio.as_completed([scraper.get_doc(entry) for scraper, entry in missing_entries]):
                     doc = await doc
 
                     if doc:
-                        f.write(encoder(doc))
-                        f.write(b'\n')
+                        # Write the document and its newline together to narrow the window in which an interruption can split them.
+                        f.write(encoder(doc) + b'\n')
             
             console.print('\nThe Corpus has been updated!', style='dark_cyan bold')
